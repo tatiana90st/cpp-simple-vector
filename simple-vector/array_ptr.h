@@ -1,5 +1,4 @@
 #pragma once
-//#include <cassert>
 #include <cstdlib>
 #include <algorithm>
 #include <utility>
@@ -43,7 +42,7 @@ public:
         if (this == &rhs) {
             return *this;
         }
-        raw_ptr_ = std::exchange(rhs.raw_ptr_, nullptr);
+        std::swap(raw_ptr_, rhs.raw_ptr_);
         return *this;
     }
 

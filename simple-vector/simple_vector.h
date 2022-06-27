@@ -1,4 +1,4 @@
-/ #pragma once
+#pragma once
 #include "array_ptr.h"
 #include <initializer_list>
 #include <algorithm>
@@ -6,6 +6,7 @@
 #include <iostream>
 #include <utility>
 #include <iterator>
+#include <cassert>
 
 //класс-обёртка для создания вектора с резервированием
 class ReserveProxyObj {
@@ -125,11 +126,13 @@ public:
     // Возвращает ссылку на элемент с индексом index
     //Для корректной работы оператора индекс элемента массива не должен выходить за пределы массива
     Type& operator[](size_t index) noexcept {
+        assert(index <= size_);
         return items_[index];
     }
 
     // Возвращает константную ссылку на элемент с индексом index
     const Type& operator[](size_t index) const noexcept {
+        assert(index <= size_);
         return items_[index];
     }
 
@@ -139,8 +142,7 @@ public:
         if (index >= size_) {
             throw std::out_of_range("index should be less than size");
         }
-        Type& el = items_[index];
-        return el;
+        return items_[index];
     }
 
     // Возвращает константную ссылку на элемент с индексом index
@@ -149,8 +151,7 @@ public:
         if (index >= size_) {
             throw std::out_of_range("index should be less than size");
         }
-        const Type& el = items_[index];
-        return el;
+        return items_[index];
     }
 
     // Обнуляет размер массива, не изменяя его вместимость
@@ -233,6 +234,7 @@ public:
     // Если перед вставкой значения вектор был заполнен полностью,
     // вместимость вектора должна увеличиться вдвое, а для вектора вместимостью 0 стать равной 1
     Iterator Insert(ConstIterator pos, const Type& value) {
+        assert(pos >= begin() && pos <= end());
         if (cap_ == 0) {
             PushBack(value);
             return begin();
@@ -255,6 +257,7 @@ public:
     }
 
     Iterator Insert(Iterator pos, Type&& value) {
+        assert(pos >= begin() && pos <= end());
         if (cap_ == 0) {
             PushBack(std::move(value));
             return begin();
@@ -279,11 +282,13 @@ public:
     // "Удаляет" последний элемент вектора. Вектор не должен быть пустым
     //Не допускается вызывать PopBack, когда вектор пуст
     void PopBack() noexcept {
+        assert(!IsEmpty());
         --size_;
     }
 
     // Удаляет элемент вектора в указанной позиции
     Iterator Erase(ConstIterator pos) {
+        assert(pos >= begin() && pos < end());
         Iterator pos_c = const_cast<Iterator>(pos);
         auto d = std::distance(begin(), pos_c);
         std::copy(std::make_move_iterator(pos_c + 1), std::make_move_iterator(end()), &items_[d]);
@@ -416,3 +421,4 @@ inline bool operator>=(const SimpleVector<Type>& lhs, const SimpleVector<Type>& 
 
     return !(rhs > lhs);
 }
+
